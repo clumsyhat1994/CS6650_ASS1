@@ -32,21 +32,21 @@ public class Main {
         new Thread(producer).start();
 
         for(int i=0; i<32; i++){
-            Consumer consumer = new Consumer(NUMOFREQPERTHREAD,bq,successCnt,list,countDownLatch,gate);
+            Consumer consumer = new Consumer(1000,bq,successCnt,list,countDownLatch,gate);
             new Thread(consumer).start();
         }
 
         gate.await();
 
-        for(int i=0; i<168; i++){
+        for(int i=0; i<NUMOFTHREADS-32; i++){
             Consumer consumer = new Consumer(NUMOFREQPERTHREAD,bq,successCnt,list,countDownLatch);
             new Thread(consumer).start();
         }
 
         countDownLatch.await();
         long endTime = System.currentTimeMillis();
-        long time = endTime - startTime;
-        double throughPut = TOTAL/(double)time;
+        double time = (double)(endTime - startTime)/1000;
+        double throughPut = TOTAL/time;
 
         File file = new File("log.csv");
 
@@ -86,6 +86,8 @@ public class Main {
         System.out.println("99th percentile: "+p99);
         System.out.println("Min response time: "+arr[0]);
         System.out.println("Max response time: "+arr[TOTAL-1]);
+
+
     }
 
 }

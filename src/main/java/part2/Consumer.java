@@ -22,7 +22,9 @@ public class Consumer implements Runnable {
     private final SuccessCnt successCnt;
 
     private final List<Entry> list;
-    private final String BASEPATH = "http://35.85.56.163:8080/Servlet_war";
+    //private final String BASEPATH = "http://35.85.56.163:8080/Servlet_war";
+    //private final String BASEPATH = "http://54.185.251.91:8080/ASS2_Servlet_war";
+    private final String BASEPATH = "http://ASS2LoadBalancer-1346720230.us-west-2.elb.amazonaws.com/ASS2_Servlet_war";
     public Consumer(int num, BlockingQueue<LiftRideEvent> buffer, SuccessCnt successCnt, List<Entry> list, CountDownLatch countDownLatch){
         this.num = num;
         this.buffer = buffer;
@@ -57,16 +59,18 @@ public class Consumer implements Runnable {
 
             long start = System.currentTimeMillis();
             while(status!=200&&cnt>0){
-                //System.out.println(status);
+
                 try {
                     status = post(apiInstance,liftRideEvent).getStatusCode();
 
                 } catch (ApiException e) {
+                    e.printStackTrace();
                     status = e.getCode();
                 }
-                //System.out.println("status: "+status);
+
                 cnt--;
             }
+
             long end = System.currentTimeMillis();
             long latency = end - start;
             list.add(new Entry(start,"POST",latency,status));
@@ -75,14 +79,12 @@ public class Consumer implements Runnable {
                 this.successCnt.incFail();
                 throw new RuntimeException("Unable to connect to server");
             }
-
-
             this.successCnt.incSuccess();
         }
         countDownLatch.countDown();
         if(gate!=null) gate.countDown();
 
-        //System.out.println("success: "+this.successCnt.getSuccess());
+
     }
 
     private ApiResponse post(SkiersApi apiInstance, LiftRideEvent liftRideEvent) throws ApiException {

@@ -29,11 +29,13 @@ public class Producer implements Runnable{
 
             try {
                 buffer.put(new LiftRideEvent(resortID,seasonID,dayID,skierID,lr));
+                //System.out.println("put!");
             } catch (InterruptedException e) {
+                System.out.println("error");
                 throw new RuntimeException(e);
             }
         }
-        //countDownLatch.countDown();
+
     }
 
 }
